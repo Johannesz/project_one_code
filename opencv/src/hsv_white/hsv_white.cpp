@@ -41,12 +41,12 @@ int main(int argc, char **argv)
 	// Threshold the HSV image, keep only the white pixels
 	cv::Mat lower_white_hue_range;
 	//
-	cv::inRange(hsv_image, cv::Scalar(0, 0, (255/100*79)), cv::Scalar(180, (255/100*31), 255), lower_white_hue_range);
+	cv::inRange(hsv_image, cv::Scalar(0, 0, (255/100*80)), cv::Scalar(180, (255/100*30), 255), lower_white_hue_range);
 	cv::GaussianBlur(lower_white_hue_range, lower_white_hue_range, cv::Size(9, 9), 2, 2);
 
 	// Use the Hough transform to detect circles in the combined threshold image
 	std::vector<cv::Vec3f> circles;
-	cv::HoughCircles(lower_white_hue_range, circles, CV_HOUGH_GRADIENT, 1, lower_white_hue_range.rows/8, 60, 60 );
+	cv::HoughCircles(lower_white_hue_range, circles, CV_HOUGH_GRADIENT, 1, 160, 200, 65 );
 
 	for (auto const& circle : circles)
 	{
