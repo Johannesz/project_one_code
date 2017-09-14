@@ -1,0 +1,3 @@
+/home/johannes/workspace/project_one_code/opencv/src/hsv_white/build/CMakeFiles/rebuild_cache.dir
+/home/johannes/workspace/project_one_code/opencv/src/hsv_white/build/CMakeFiles/edit_cache.dir
+/home/johannes/workspace/project_one_code/opencv/src/hsv_white/build/CMakeFiles/hsv_white.dir
