@@ -1276,7 +1276,7 @@ int main(int argc, char **argv) {
 	int ell_count = 0, line_count = 0, circ_count = 0;
 	image_double image;
 
-	// form Ziegler
+	// from Ziegler
 	int xsize = 640;
 	int ysize = 480;
 	int x = 0;
