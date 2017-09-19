@@ -1,0 +1,3 @@
+/home/johannes/workspace/project_one_code/opencv/src/ellipse/build/CMakeFiles/edit_cache.dir
+/home/johannes/workspace/project_one_code/opencv/src/ellipse/build/CMakeFiles/rebuild_cache.dir
+/home/johannes/workspace/project_one_code/opencv/src/ellipse/build/CMakeFiles/ellipse.dir
