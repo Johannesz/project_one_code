@@ -12,7 +12,7 @@ Mat dst, detected_edges;
 
 int edgeThresh = 1;
 int lowThreshold;
-int const max_lowThreshold = 100;
+int const max_lowThreshold = 400;
 int ratio = 3;
 int kernel_size = 3;
 char* window_name = "Edge Map";
@@ -24,10 +24,14 @@ char* window_name = "Edge Map";
 void CannyThreshold(int, void*)
 {
   /// Reduce noise with a kernel 3x3
-  blur( src_gray, detected_edges, Size(3,3) );
+  //blur( src_gray, detected_edges, Size(3,3) );
+
+  // Median Blur
+  medianBlur(src_gray, detected_edges, 7);
+
 
   /// Canny detector
-  Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size );
+  Canny( detected_edges, detected_edges, lowThreshold, 350, kernel_size );
 
   /// Using Canny's output as a mask, we display our result
   dst = Scalar::all(0);
@@ -51,7 +55,7 @@ int main( int argc, char** argv )
 
   /// Convert the image to grayscale
   cvtColor( src, src_gray, CV_BGR2GRAY );
-  //equalizeHist( src_gray, src_gray );
+  equalizeHist( src_gray, src_gray );
 
   /// Create a window
   namedWindow( window_name, CV_WINDOW_AUTOSIZE );
