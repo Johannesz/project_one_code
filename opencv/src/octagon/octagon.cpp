@@ -4,6 +4,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <vector>
 #include <math.h>
+#include <algorithm>
 
 int main(int argc, char **argv) {
 
@@ -43,7 +44,7 @@ int main(int argc, char **argv) {
 
    cv::cornerHarris(erosion, harris, 4, 3, 0.16, cv::BORDER_DEFAULT);
    cv::normalize(harris, harris, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
-   cv::convertScaleAbs( harris_norm, harris_norm_scaled );
+   cv::convertScaleAbs(harris_norm, harris_norm_scaled);
 
    std::vector<cv::Vec2f> center;
 
@@ -57,26 +58,20 @@ int main(int argc, char **argv) {
       }
    }
 
-
-
-
-
    // Show all found corners
-   for (auto const& circle : center) {
-      std::cout << circle << std::endl;
-   }
+//   for (auto const& circle : center) {
+//      std::cout << circle << std::endl;
+//   }
 
    std::cout << "Anzahl vollständig: " << center.size() << std::endl;
-
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // reduce found cornes to one per square corner
    std::vector<cv::Vec2f> filt_corner;
 
-   float sumX = 0;
-   float sumY = 0;
+   float sumX = 0.0;
+   float sumY = 0.0;
    int similarCorner = 0;
-
 
    /////////////////////// Loop through all found corners
    for (size_t current_corner = 0; current_corner < center.size();
@@ -151,28 +146,112 @@ int main(int argc, char **argv) {
 
          }
 
-         sumX = 0;
-         sumY = 0;
+         sumX = 0.0;
+         sumY = 0.0;
          similarCorner = 0;
 
       }
 
    }
 
+   std::cout << "Eckpunkte: " << std::endl << std::endl;
    // Show all found corners
    for (auto const& circle2 : filt_corner) {
       std::cout << circle2 << std::endl;
    }
    std::cout << "Anzahl reduziert: " << filt_corner.size() << std::endl;
 
-   if(filt_corner.size() == 0) std::exit(-1);
-      for(size_t current_corner3 = 0; current_corner3 < filt_corner.size(); ++current_corner3) {
-         cv::circle(image, cv::Point(filt_corner[current_corner3][0], filt_corner[current_corner3][1]), 5, cv::Scalar(0), 2, 8, 0);
-      }
-
+   if (filt_corner.size() == 0)
+      std::exit(-1);
+   for (size_t current_corner3 = 0; current_corner3 < filt_corner.size();
+         ++current_corner3) {
+      cv::circle(image,
+            cv::Point(filt_corner[current_corner3][0],
+                  filt_corner[current_corner3][1]), 5, cv::Scalar(0), 2, 8, 0);
+   }
 
    /////////////////////////////////////////////////
+   //// calculate sqares (80 Pixel is a good start
 
+   std::vector<cv::Vec3f> middle_point;
+   float middleX = 0.0;
+   float middleY = 0.0;
+   float hypotenuse = 0.0;
+   float adjacent = 0.0;
+
+   for (size_t current_corner4 = 0; current_corner4 < filt_corner.size();
+         ++current_corner4) {
+
+      //put the first corner into the sqare iterator
+
+      std::vector<cv::Vec2f> iterator;
+      iterator.push_back(
+            cv::Vec2f(filt_corner[current_corner4][0],
+                  filt_corner[current_corner4][1]));
+      //search for the 3 further corners of a squares within a certain area
+
+      for (size_t current_corner5 = (current_corner4 + 1);
+            current_corner5 < filt_corner.size(); ++current_corner5) {
+         if (abs(iterator[0][0] - filt_corner[current_corner5][0]) < 80) {
+            if (abs(iterator[0][1] - filt_corner[current_corner5][1]) < 80) {
+               iterator.push_back(
+                     cv::Vec2f(filt_corner[current_corner5][0],
+                           filt_corner[current_corner5][1]));
+            }
+         }
+      }
+
+      // if four points are within a certain area the middlepoint of a square will calcualted
+      if (iterator.size() == 4) {
+
+//         std::cout << std::endl <<  "unsortiert: " <<  std::endl;
+//               for (auto const& circle4 : iterator) {
+//                       std::cout << circle4 << std::endl;
+//                    }
+
+         for (size_t it = 0; it < iterator.size(); ++it) {
+            middleX += iterator[it][0];
+            middleY += iterator[it][1];
+
+         }
+         middleX = middleX / 4;
+         middleY = middleY / 4;
+
+         std::sort(iterator.begin(), iterator.end(),
+               [](const cv::Point2f &a, const cv::Point2f &b) {
+                  //return ( a.x*a.x + a.y*a.y < b.x*b.x + b.y*b.y);
+                  return ( a.y < b.y);
+
+               });
+
+//            std::cout << std::endl << "sortiert: "  << std::endl;
+//            for (auto const& circle5 : iterator) {
+//               std::cout << circle5 << std::endl;
+//            }
+
+         // Calculate the rotation of the square
+         adjacent = abs(iterator[0][0] - iterator[1][0]);
+         hypotenuse = (iterator[0][0] - iterator[1][0])
+               * (iterator[0][0] - iterator[1][0])
+               + (iterator[0][1] - iterator[1][1])
+                     * (iterator[0][1] - iterator[1][1]);
+         hypotenuse = sqrtf(hypotenuse);
+         adjacent = acosf((adjacent / hypotenuse));
+
+         middle_point.push_back(cv::Vec3f(middleX, middleY, adjacent));
+      }
+
+      iterator.clear();
+      middleX = 0.0;
+      middleY = 0.0;
+      adjacent = 0.0;
+      hypotenuse = 0.0;
+   }
+
+   std::cout << std::endl << "Mittelpunkt und Rotation: " << std::endl;
+   for (auto const& circle6 : middle_point) {
+      std::cout << circle6 << std::endl;
+   }
 
    //windows
 
